@@ -1,6 +1,6 @@
 {
   "name": "@pacmard/winston-kafka-transport",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Flexible and simple kafka transport for winston v3",
   "main": "index.js",
   "scripts": {
