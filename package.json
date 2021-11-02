@@ -1,6 +1,6 @@
 {
   "name": "@pacmard/winston-kafka-transport",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Flexible and simple kafka transport for winston v3",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,9 @@
   "homepage": "https://github.com/pacmard/winston-kafka-transport#readme",
   "peerDependencies": {
     "winston": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.12"
   },
   "dependencies": {
     "kafkajs": "^1.15.0",
