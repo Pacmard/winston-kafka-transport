@@ -1,7 +1,7 @@
 yarn.lock
+yarn-error.log
 .npmignore
 node_modules
 .idea
 .npmrc
 .git
-yarn-error.log
