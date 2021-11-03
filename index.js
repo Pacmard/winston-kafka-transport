@@ -1,5 +1,3 @@
-const winston = require('winston');
-const semver = require('semver');
 const { Kafka } = require('kafkajs');
 const Transport = require('winston-transport');
 const CircularJSON = require('circular-json');
@@ -8,10 +6,6 @@ const util = require('util');
 const { v4: uuidv4 } = require('uuid');
 
 const debug = util.debuglog('winston:kafka');
-
-if (semver.major(winston.version) !== 3) {
-  throw new Error('This module only supports winston v3');
-}
 
 const DEFAULTS = {
   topic: 'winston-kafka-logs',
