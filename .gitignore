@@ -5,3 +5,7 @@ node_modules
 .idea
 .npmrc
 .git
+.prettierrc.js
+.eslintignore
+.eslintrc.js
+.prettierignore
