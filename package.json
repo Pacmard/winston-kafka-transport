@@ -1,6 +1,6 @@
 {
   "name": "@pacmard/winston-kafka-transport",
-  "version": "0.0.7",
+  "version": "1.2.0",
   "description": "Flexible and simple kafka transport for winston v3",
   "main": "index.js",
   "scripts": {
@@ -38,7 +38,9 @@
   "dependencies": {
     "circular-json": "^0.5.9",
     "kafkajs": "^1.15.0",
+    "lodash.defaultsdeep": "^4.6.1",
     "semver": "^7.3.5",
+    "uuid": "^8.3.2",
     "winston-transport": "^4.4.0"
   }
 }
