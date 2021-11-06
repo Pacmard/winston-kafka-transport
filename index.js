@@ -10,32 +10,17 @@ const debug = util.debuglog('winston:kafka');
 const DEFAULTS = {
   topic: 'winston-kafka-logs',
   kafkaOptions: {
-    kafkaHost: '127.0.0.1:9092', // required!
+    brokers: ['localhost:9092'], // required!
     clientId: 'winston-kafka-logger',
-    connectTimeout: 10 * 1000,
+    connectionTimeout: 10 * 1000,
     requestTimeout: 30 * 1000,
-    idleConnection: 5 * 60 * 1000,
-    autoConnect: true,
-    versions: {
-      disabled: false,
-      requestTimeout: 500,
-    },
-    connectRetryOptions: {
+    retry: {
+      maxRetryTime: 30000,
+      initialRetryTime: 300,
       retries: 5,
-      factor: 2,
-      minTimeout: 1000,
-      maxTimeout: 60 * 1000,
-      randomize: true,
+      restartOnFailure: true,
     },
-    maxAsyncRequests: 10,
-    noAckBatchOptions: null,
   },
-  producer: {
-    partitionerType: 0, // default: 0, random: 1, cyclic: 2, keyed: 3, custom: 4
-    requireAcks: 1,
-    ackTimeoutMs: 100,
-  },
-  highWaterMark: 100,
   partition: 0,
 };
 
