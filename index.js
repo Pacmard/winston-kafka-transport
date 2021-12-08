@@ -4,6 +4,8 @@ const CircularJSON = require('circular-json');
 const defaultsDeep = require('lodash.defaultsdeep');
 const { v4: uuidv4 } = require('uuid');
 
+const { LOGS_KAFKA_LOG_DELIVERY_STATUS } = process.env;
+
 const DEFAULTS = {
   topic: 'winston-kafka-logs',
   kafkaOptions: {
@@ -55,6 +57,16 @@ module.exports = class KafkaTransport extends Transport {
     }
   }
 
+  logSendingState(res) {
+    if (LOGS_KAFKA_LOG_DELIVERY_STATUS) {
+      if (res[0].errorCode === 0) {
+        console.log('Log successfully sent to Kafka');
+      } else {
+        console.log(`An error occurred while sending log to kafka\nError code: ${res[0].errorCode}`);
+      }
+    }
+  }
+
   async _sendPayload(payload) {
     const { CONNECT } = this.producer.events;
 
@@ -63,12 +75,12 @@ module.exports = class KafkaTransport extends Transport {
         await this.connect();
         return this.producer.on(CONNECT, async () => {
           const res = await this.producer.send(payload).catch((err) => console.log(err));
-          console.log(`errorCode: ${res[0].errorCode}`);
+          this.logSendingState(res)
         });
       }
 
       const res = await this.producer.send(payload);
-      console.log(`errorCode: ${res[0].errorCode}`);
+      this.logSendingState(res)
       return res;
     } catch (err) {
       console.log(err);
