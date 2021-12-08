@@ -62,7 +62,9 @@ module.exports = class KafkaTransport extends Transport {
       if (res[0].errorCode === 0) {
         console.log('Log successfully sent to Kafka');
       } else {
-        console.log(`An error occurred while sending log to kafka\nError code: ${res[0].errorCode}`);
+        console.log(
+          `An error occurred while sending log to kafka\nError code: ${res[0].errorCode}`,
+        );
       }
     }
   }
@@ -75,12 +77,12 @@ module.exports = class KafkaTransport extends Transport {
         await this.connect();
         return this.producer.on(CONNECT, async () => {
           const res = await this.producer.send(payload).catch((err) => console.log(err));
-          this.logSendingState(res)
+          this.logSendingState(res);
         });
       }
 
       const res = await this.producer.send(payload);
-      this.logSendingState(res)
+      this.logSendingState(res);
       return res;
     } catch (err) {
       console.log(err);
@@ -103,7 +105,7 @@ module.exports = class KafkaTransport extends Transport {
         messages: [
           {
             key: uuidv4(),
-            value: this.jsonformatter.stringify({ ...message, timestamp: this.timestamp() }),
+            value: typeof message === 'object' ? this.jsonformatter.stringify(message) : message,
             partition: this.options.partition,
           },
         ],
