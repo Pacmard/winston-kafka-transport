@@ -2,10 +2,7 @@ const { Kafka } = require('kafkajs');
 const Transport = require('winston-transport');
 const CircularJSON = require('circular-json');
 const defaultsDeep = require('lodash.defaultsdeep');
-const util = require('util');
 const { v4: uuidv4 } = require('uuid');
-
-const debug = util.debuglog('winston:kafka');
 
 const DEFAULTS = {
   topic: 'winston-kafka-logs',
@@ -35,41 +32,59 @@ module.exports = class KafkaTransport extends Transport {
     this.jsonformatter = options.jsonformatter || CircularJSON;
 
     this.connected = false;
-    return this.connect();
-  }
-
-  connect() {
     this.client = new Kafka(this.options.kafkaOptions);
     this.producer = this.client.producer();
-    this.producer.connect();
-
-    const { CONNECT, REQUEST_TIMEOUT } = this.producer.events;
-
-    this.producer.on(CONNECT, () => {
-      this.connected = true;
-    });
-
-    this.producer.on(REQUEST_TIMEOUT, (err) => {
-      throw new Error(err);
-    });
   }
 
-  _sendPayload(payload) {
+  async connect() {
+    try {
+      await this.producer.connect();
+
+      const { CONNECT, REQUEST_TIMEOUT } = this.producer.events;
+
+      this.producer.on(CONNECT, () => {
+        console.log(`Connected to Kafka brokers: ${this.options.kafkaOptions.brokers}`);
+        this.connected = true;
+      });
+
+      this.producer.on(REQUEST_TIMEOUT, (err) => {
+        throw new Error(err);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async _sendPayload(payload) {
     const { CONNECT } = this.producer.events;
 
-    if (!this.connected) {
-      return this.producer.on(CONNECT, () => this.producer.send(payload));
-    }
+    try {
+      if (!this.connected) {
+        await this.connect();
+        return this.producer.on(CONNECT, async () => {
+          const res = await this.producer.send(payload).catch((err) => console.log(err));
+          console.log(`errorCode: ${res[0].errorCode}`);
+        });
+      }
 
-    return this.producer.send(payload);
+      const res = await this.producer.send(payload);
+      console.log(`errorCode: ${res[0].errorCode}`);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   disconnect() {
+    console.log('Disconnected from kafka');
     this.connected = false;
     return this.producer.disconnect();
   }
 
-  log(message, callback) {
+  log(info, callback) {
+    const messageBuffer = Buffer.from(this.options.formatter(info));
+    const message = JSON.parse(messageBuffer.toString());
+
     try {
       const payload = {
         topic: this.options.topic,
@@ -84,11 +99,12 @@ module.exports = class KafkaTransport extends Transport {
 
       this._sendPayload(payload, (error) => {
         if (error) {
-          debug(error);
+          console.log(error);
         }
       });
       return callback(null, true);
     } catch (error) {
+      console.log(error);
       return callback(error);
     }
   }
